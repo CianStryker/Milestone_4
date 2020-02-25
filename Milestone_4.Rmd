@@ -1,0 +1,264 @@
+---
+title: "Project Milestone #4"
+author: "Cian Stryker"
+date: "2/24/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+
+library(gt)
+library(stargazer)
+library(tidyverse)
+```
+
+```{r}
+# My loading code. 
+
+load("~/Replication_Project/Data/kyrgyzstan.RData")
+data <- table
+
+```
+
+
+I will be replicating the paper "Ethnic Riots and Prosocial Behavior: Evidence from Kyrgyzstan" written by Anselm Hager, Krzysztof Krakowski, and Max Schaub.[^1] Using survey data performed in Osh, Kyrgyzstan after the 2010 ethnic riots, this paper attempts to see if exposure to ethnic riots has a negative effect on both in and out group members. The literature on prosocial behavior following ethnic violence suggests that prosocial behavior towards the aggressor group is negatively affected. Some literature also suggests that prosocial behavior towards the in-group, or the victim group, should improve as a result of shared conflict. This paper finds, however, that prosocial behavior for both in and out groups are negatively affected.  The authors measure prosocial behavior by having subjects complete a prisoner's dilemma scenario and dictator game hypothetical that measure prosocial behavior. They use these responses in a series of regression to measure the average effect on prosocial behavior amongst subjects who were exposed to violence during the riots. They also pursue robust testing of confounding variables such as access to APC vehicles that allowed rioters to break through Uzbek barricades. This portion of the paper relies on geospatial data that is combined with the original testing within a series of regressions. The authors use robust statistical measures alongside geospatial data to identify inconsistencies within the literature regarding the effects of ethnic violence.
+
+[^1]: Citation is here
+
+The first step to understanding the data analysis performed in the following replication, is to become familiar with the event itself. The 2010 ethinc riots happened in Osh, Kyrgyzstan and were comprised of the ethnic Kyrgyz majority rioting against the ethnic Uzbek minority.[^2] The second step is to understand the author's data. They performed 1100 interviews with Uzbeks and Kyrgyz from Osh, Kyrgyzstan. View the table below to see how the interview subjects differentiate between ethnicites, average ages, average incomes, gender, and number affected by riots. 
+
+
+[^2]: Citation #2 Here
+
+\hfill\break
+```{r include=FALSE}
+uzbek <- data %>%
+  filter(ethnicity == "Uzbek") 
+
+uzbek_total <- uzbek %>%
+  summarize(Total = nrow(uzbek))
+
+uzbek_age <- uzbek %>%
+  summarize(Age = mean(age))
+
+uzbek_income <- uzbek %>%
+  summarize(Income = mean(income))
+
+uzbek_men <- uzbek %>%
+  filter(sex == 1) %>%
+  summarize(male = sum(sex)) %>%
+  summarize(Men = (male/878))
+
+uzbek_women <- uzbek %>%
+  filter(sex == 0) %>%
+  mutate(sex2 = sex + 1) %>%
+  summarize(female = sum(sex2)) %>%
+  summarize(Women = (female/878))
+
+uzbek_affected <- uzbek %>%
+  filter(affected == 1) %>%
+  summarize(Affected = sum(affected))
+
+uzbek_non_affected <- uzbek %>%
+  filter(affected == 0) %>%
+  mutate(affected2 = affected + 1) %>%
+  summarize(Unaffected = sum(affected2))
+
+uzbeks <- data.frame(uzbek_total, uzbek_age, uzbek_income, uzbek_men, uzbek_women, uzbek_affected, uzbek_non_affected) 
+
+uzbeks2 <- reshape2::melt(uzbeks)
+
+```
+
+
+```{r include=FALSE}
+kyrgyz <- data %>%
+  filter(ethnicity == "Kyrgyz")
+
+kyrgyz_total <- kyrgyz %>%
+  summarize(Total = nrow(kyrgyz))
+
+kyrgyz_age <- kyrgyz %>%
+  summarize(Age = mean(age))
+
+kyrgyz_income <- kyrgyz %>%
+  summarize(Income = mean(income))
+
+kyrgyz_men <- kyrgyz %>%
+  filter(sex == 1) %>%
+  summarize(male = sum(sex)) %>%
+  summarize(Men = (male/222))
+
+kyrgyz_women <- kyrgyz %>%
+  filter(sex == 0) %>%
+  mutate(sex2 = sex + 1) %>%
+  summarize(female = sum(sex2)) %>%
+  summarize(Women = (female/222))
+
+kyrgyz_affected <- kyrgyz %>%
+  filter(affected == 1) %>%
+  summarize(Affected = sum(affected))
+
+kyrgyz_non_affected <- kyrgyz %>%
+  filter(affected == 0) %>%
+  mutate(affected2 = affected + 1) %>%
+  summarize(Unaffected = sum(affected2))
+
+
+kyrgyzz <- data.frame(kyrgyz_total, kyrgyz_age, kyrgyz_income, kyrgyz_men, kyrgyz_women, kyrgyz_affected, kyrgyz_non_affected)
+
+kyrgyz2 <- reshape2::melt(kyrgyzz)
+
+trial <- c("Total", "Average Age", "Average Income", "Percentage Men", "Percentage Women", "Number Affected", "Number Unaffected")
+
+```
+
+```{r}
+
+table_data <- data.frame(trial, uzbeks2, kyrgyz2)
+
+table_data2 <- data.frame(trial, table_data) %>%
+  select(trial, value, value.1) %>%
+  gt() %>%
+  fmt_number(columns = vars("value", "value.1"),
+             decimals = 0, use_seps = TRUE) %>%
+  cols_label("trial" = " ", "value" = "Uzbeks",
+             "value.1" = "Kyrgyz") %>%
+  fmt_percent(
+              columns = c("value", "value.1"),
+              rows = c(4, 5),
+              decimals = 0,
+              drop_trailing_zeros = FALSE,
+              use_seps = TRUE,
+              pattern = "{x}",
+              sep_mark = ",",
+              dec_mark = ".",
+              incl_space = FALSE,
+              placement = "right",
+              locale = NULL) %>%
+  tab_header(
+    title = "Table 1: Survey Data",
+    subtitle = "Separated between Uzbeks and Kyrgyz"
+  ) %>%
+  cols_align(align = c("center"), columns = TRUE)
+
+```
+
+```{r}
+table_data2
+```
+\hfill\break
+
+While the authors decided to run OLS linear regressions measuring the effect various variables had on Uzbeks behavior in the Prisoner's Dilema and Dictator Game I decided to run the same testing but for their Kyrgyz subjects. This shows the differnces between the two ethnic groups and suggests some intersting differnces to how Uzebeks reacted to the riots and how Kyrgyz reacted who were not the target of the riots, but who were still saw damaged and/or destroyed property. 
+
+\hfill\break
+
+```{r Cleaning}
+
+# Same cleaning code that they've done
+# for all figures. Its just as.integer commands
+# and shifting the binary.
+
+data$affected <- as.integer(data$affected)
+data$affected <- data$affected - 1
+data$pd_in <- as.integer(data$pd_in)
+data$pd_out <- as.integer(data$pd_out)
+
+
+# They wanted to rename a variable here. 
+
+data$social_cap_retro <- data$leadership
+
+# Subsetting time as per usual.
+
+data_kyrgyz <- data[which(data$ethnicity=="Kyrgyz"),]
+
+# And once more they wanted to scale everything. 
+# Remind me to ask Alice to clarify what this does 
+# in simple terms. I think I get it but I want to 
+# make sure. 
+
+data_kyrgyz$pd_in_scale <- scale(data_kyrgyz$pd_in)
+data_kyrgyz$dg_in_scale <- scale(data_kyrgyz$dg_in)
+data_kyrgyz$pd_out_scale <- scale(data_kyrgyz$pd_out)
+data_kyrgyz$dg_out_scale <- scale(data_kyrgyz$dg_out)
+data_kyrgyz$cooperation_index <- rowSums(cbind(data_kyrgyz$pd_in_scale, 
+                                              data_kyrgyz$dg_in_scale, 
+                                              data_kyrgyz$pd_out_scale, 
+                                              data_kyrgyz$dg_out_scale), na.rm=T)/4
+```
+
+
+```{r Regressions}
+
+# So many multivariate linear regressions. So this 
+# is their table info which requires the prisoner dilemma, 
+# dictator game, and cooperation index to be regressed by 
+# a bushel of variables. Here is where I'd like to do some
+# playing around when its my turn to make changes. 
+
+model1 <- lm(pd_in_scale ~ affected + economy_index + state_index + social_cap_retro + access_index + aj_vote_share, data=data_kyrgyz)
+model2 <- lm(dg_in_scale ~ affected + economy_index + state_index + social_cap_retro + access_index + aj_vote_share, data=data_kyrgyz)
+model3 <- lm(pd_out_scale ~ affected + economy_index + state_index + social_cap_retro + access_index + aj_vote_share, data=data_kyrgyz)
+model4 <- lm(dg_out_scale ~ affected + economy_index + state_index + social_cap_retro + access_index + aj_vote_share, data=data_kyrgyz)
+model5 <- lm(cooperation_index ~ affected + economy_index + state_index + social_cap_retro + access_index + aj_vote_share, data=data_kyrgyz)
+
+```
+
+```{r Summaries, include=FALSE}
+
+# I actually don't know why they are
+# running a summary on every model but
+# I assume they need to in order to run
+# the stargazer. 
+
+summary(model1)
+summary(model2)
+summary(model3)
+summary(model4)
+summary(model5)
+```
+
+```{r Stargazer, results = "asis"}
+
+ stargazer(model1, model3, 
+          covariate.labels = c("Destruction", "Wealth index", 
+                               "State capacity index", "Community policing index", 
+                               "Accessibility index", "AJ %"),
+          dep.var.labels = c("Cooperation in Prisoner's Dilemma",
+                              "Cooperation in Prisoner's Dilemma"
+                              ),
+          star.char = c("*", "**", "***"),
+          title = "Table 2: Effect of Destruction on Prosocial Behavior for Kyrgyz (PD)",
+          star.cutoffs = c(0.05, 0.01, 0.001),
+          single.row = TRUE, 
+          font.size = NULL,
+          column.sep.width = "1pt",
+          header = FALSE, type = 'latex')
+
+ stargazer(model2, model4, 
+          covariate.labels = c("Destruction", "Wealth index", 
+                               "State capacity index", "Community policing index", 
+                               "Accessibility index", "AJ %"),
+          dep.var.labels = c("Investment in Dictator Game",
+                              "Investment in Dictator Game"
+                              ),
+          star.char = c("*", "**", "***"),
+          title = "Table 3: Effect of Destruction on Prosocial Behavior for Kyrgyz (DG)",
+          star.cutoffs = c(0.05, 0.01, 0.001),
+          single.row = TRUE, 
+          font.size = NULL,
+          column.sep.width = "1pt",
+          header = FALSE, type = 'latex')
+
+```
+
+ 
+
+\pagebreak
+
+\begin{center}
+ Bibliography
+\end{center}
