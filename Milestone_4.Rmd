@@ -25,12 +25,12 @@ data <- table
 
 I will be replicating the paper "Ethnic Riots and Prosocial Behavior: Evidence from Kyrgyzstan" written by Anselm Hager, Krzysztof Krakowski, and Max Schaub.[^1] Using survey data performed in Osh, Kyrgyzstan after the 2010 ethnic riots, this paper attempts to see if exposure to ethnic riots has a negative effect on both in and out group members. The literature on prosocial behavior following ethnic violence suggests that prosocial behavior towards the aggressor group is negatively affected. Some literature also suggests that prosocial behavior towards the in-group, or the victim group, should improve as a result of shared conflict. This paper finds, however, that prosocial behavior for both in and out groups are negatively affected.  The authors measure prosocial behavior by having subjects complete a prisoner's dilemma scenario and dictator game hypothetical that measure prosocial behavior. They use these responses in a series of regression to measure the average effect on prosocial behavior amongst subjects who were exposed to violence during the riots. They also pursue robust testing of confounding variables such as access to APC vehicles that allowed rioters to break through Uzbek barricades. This portion of the paper relies on geospatial data that is combined with the original testing within a series of regressions. The authors use robust statistical measures alongside geospatial data to identify inconsistencies within the literature regarding the effects of ethnic violence.
 
-[^1]: Citation is here
+[^1]: Anselm Hager, Krzysztof Krakowski, and Max Schaub, “Ethnic Riots and Prosocial Behavior: Evidence from Kyrgyzstan,” American Political Science Review 113, no. 4 (2019): 1029–44.
 
 The first step to understanding the data analysis performed in the following replication, is to become familiar with the event itself. The 2010 ethinc riots happened in Osh, Kyrgyzstan and were comprised of the ethnic Kyrgyz majority rioting against the ethnic Uzbek minority.[^2] The second step is to understand the author's data. They performed 1100 interviews with Uzbeks and Kyrgyz from Osh, Kyrgyzstan. View the table below to see how the interview subjects differentiate between ethnicites, average ages, average incomes, gender, and number affected by riots. 
 
 
-[^2]: Citation #2 Here
+[^2]: Franco Galdini, “Kyrgyzstan Violence: Four Years On,” July 1, 2014, https://www.aljazeera.com/indepth/opinion/2014/06/kyrgyzstan-violence-2010-201463016460195835.html.
 
 \hfill\break
 ```{r include=FALSE}
@@ -151,7 +151,7 @@ table_data2
 ```
 \hfill\break
 
-While the authors decided to run OLS linear regressions measuring the effect various variables had on Uzbeks behavior in the Prisoner's Dilema and Dictator Game I decided to run the same testing but for their Kyrgyz subjects. This shows the differnces between the two ethnic groups and suggests some intersting differnces to how Uzebeks reacted to the riots and how Kyrgyz reacted who were not the target of the riots, but who were still saw damaged and/or destroyed property. 
+While the authors decided to run OLS linear regressions measuring the effect various variables had on Uzbeks behavior in the Prisoner's Dilema and Dictator Game scenarios they ran, I decided to run the same testing but for their Kyrgyz subjects. This shows the differences between the two ethnic groups and suggests some interesting differnces between how Uzebeks reacted to the riots and how Kyrgyz reacted who were not the target of the riots, but who were still  damaged and/or experienced destroyed property. 
 
 \hfill\break
 
@@ -262,3 +262,18 @@ summary(model5)
 \begin{center}
  Bibliography
 \end{center}
+
+
+\begingroup
+\setlength{\parindent}{-0.2in}
+\setlength{\leftskip}{0.2in}
+\setlength{\parskip}{8pt}
+
+Galdini, Franco. “Kyrgyzstan Violence: Four Years On,” July 1, 2014. 
+https://www.aljazeera.com/indepth/opinion/2014/06/kyrgyzstan-violence-2010-201463016460195835.html.
+
+Hager, Anselm, Krzysztof Krakowski, and Max Schaub. “Ethnic Riots and Prosocial Behavior: Evidence from Kyrgyzstan.” American Political Science
+Review 113, no. 4 (2019): 1029–44.
+
+
+\endgroup
